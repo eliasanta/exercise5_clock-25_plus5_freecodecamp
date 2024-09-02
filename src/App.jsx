@@ -3,19 +3,26 @@ import './App.css';
 
 function App() {
   const [breakLength, setBreakLength] = useState(5),
-    [sessionLength, setSessionLength] = useState(25);
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 1500 seconds = 25 minutes
-  const [isActive, setIsActive] = useState(false);
-  const [isSession, setIsSession] = useState(true);
+    [sessionLength, setSessionLength] = useState(25),
+    [timeLeft, setTimeLeft] = useState(25 * 60),
+    [isActive, setIsActive] = useState(false),
+    [isSession, setIsSession] = useState(true),
+     beepRef = useRef(null),
+    [hasStarted, setHasStarted] = useState(false);
 
-  const beepRef = useRef(null);
   const toggleTimer = () => {
     if (!isActive) {
       // Timer is starting or resuming
-      setIsSession(true); // Ensure we're in the session phase if it's starting
+      if (!hasStarted) {
+        setTimeLeft(sessionLength * 60); // Set to current session length only the first time
+        setHasStarted(true);
+      }
+      setIsSession(true); // Start with session phase
+      document.getElementById('timer-label').innerText = 'Session'; // Ensure label is set to Session
     }
     setIsActive(!isActive);
   };
+  
 
   // Reset the timer to the initial state
   const resetTimer = () => {
@@ -24,12 +31,22 @@ function App() {
       beepRef.current.pause();
       beepRef.current.currentTime = 0;
     }
-    // Reset timer values
-    setTimeLeft(sessionLength * 60); // Reset timeLeft to the current session length
     setBreakLength(5);
     setSessionLength(25);
+    setTimeLeft(25 * 60); // Reset to default session length
     setIsActive(false); // Stop the timer
-    setIsSession(true); // Reset to the session phase
+    setIsSession(true); // Reset to session phase
+    setHasStarted(false); // Reset timer start state
+    document.getElementById('timer-label').innerText = 'Session'; // Ensure label is reset
+  };
+  
+  
+  const playSound = () => {
+    const audio = beepRef.current;
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
   };
 
   function formatTime(time) {
@@ -66,31 +83,28 @@ function App() {
       setTimeLeft((sessionLength + 1) * 60);
     }
   };
-  // Timer interval management
   useEffect(() => {
     let interval = null;
-
     if (isActive) {
       interval = setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 0) {
-            clearInterval(interval);
-            setIsActive(false);
-            beepRef.current.play(); // Play sound when time is up
-
+            playSound();
             // Switch between session and break
             if (isSession) {
-              setTimeLeft(breakLength * 60);
-              setIsSession(false);
-              document.getElementById('timer-label').innerText = 'Break'; // Update label to Break
+              // Switch to break
+              setTimeLeft(breakLength * 60); // Set time to break length
+              setIsSession(false); // Change phase to break
+              document.getElementById('timer-label').innerText = 'Break'; // Update label
             } else {
-              setTimeLeft(sessionLength * 60);
-              setIsSession(true);
-              document.getElementById('timer-label').innerText = 'Session'; // Update label to Session
+              // Switch to session
+              setTimeLeft(sessionLength * 60); // Set time to session length
+              setIsSession(true); // Change phase to session
+              document.getElementById('timer-label').innerText = 'Session'; // Update label
             }
-            return prevTime;
+            return prevTime; // Return the previous time, so it does not continue to decrement
           }
-          return prevTime - 1;
+          return prevTime - 1; // Decrement time
         });
       }, 1000);
     } else {
@@ -99,9 +113,12 @@ function App() {
 
     return () => clearInterval(interval);
   }, [isActive, isSession, breakLength, sessionLength]);
-
+  
+  
   return (
     <>
+    <h3>Tomato clock</h3>
+    <img src="./" alt="tomato" />
       <div id="break-label">Break Length</div>
       <div id="break-length" value={breakLength}>
         {breakLength}
@@ -158,10 +175,7 @@ function App() {
       <button id="reset" onClick={resetTimer}>
         Reset
       </button>
-      <audio id="beep" ref={beepRef}>
-        <source src="./assets/beep.mp3" type="audio/mpeg" />
-        Your browser does not support the <code>audio</code> element.
-      </audio>
+      <audio ref={beepRef} className="beep" id="beep" src="https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/start.ogg"></audio>
     </>
   );
 }
