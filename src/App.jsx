@@ -7,7 +7,7 @@ function App() {
     [timeLeft, setTimeLeft] = useState(25 * 60),
     [isActive, setIsActive] = useState(false),
     [isSession, setIsSession] = useState(true),
-     beepRef = useRef(null),
+    beepRef = useRef(null),
     [hasStarted, setHasStarted] = useState(false);
 
   const toggleTimer = () => {
@@ -22,7 +22,7 @@ function App() {
     }
     setIsActive(!isActive);
   };
-  
+
 
   // Reset the timer to the initial state
   const resetTimer = () => {
@@ -39,8 +39,8 @@ function App() {
     setHasStarted(false); // Reset timer start state
     document.getElementById('timer-label').innerText = 'Session'; // Ensure label is reset
   };
-  
-  
+
+
   const playSound = () => {
     const audio = beepRef.current;
     if (audio) {
@@ -113,68 +113,80 @@ function App() {
 
     return () => clearInterval(interval);
   }, [isActive, isSession, breakLength, sessionLength]);
-  
-  
+
+
   return (
     <>
-    <h3>Tomato clock</h3>
-    <img src="./" alt="tomato" />
-      <div id="break-label">Break Length</div>
-      <div id="break-length" value={breakLength}>
-        {breakLength}
+      <div className="tomato-container">
+        <h2>Tomato clock</h2>
+        <span>
+          <img src="https://img.icons8.com/?size=100&id=80746&format=png&color=000000" alt="tomato" />
+        </span>
       </div>
-      <button
-        className="btn-level"
-        id="break-decrement"
-        onClick={handleBreakDecrement}
-        value="-"
-      >
-        <i className="fa fa-arrow-down fa-2x"></i>
-      </button>
-      <button
-        className="btn-level"
-        onClick={handleBreakIncrement}
-        id="break-increment"
-        value="+"
-      >
-        <i className="fa fa-arrow-up fa-2x"></i>
-      </button>
-      <div id="session-label">Session Length</div>
-      <div id="session-length" value={sessionLength}>
-        {sessionLength}
+      <div className='break-session-container'>
+        <div className='breakLength'>
+          <div id="break-label">Break Length</div>
+          <div id="break-length" value={breakLength}>
+            {breakLength}
+          </div>
+          <button
+            className="btn-level"
+            id="break-decrement"
+            onClick={handleBreakDecrement}
+            value="-"
+          >
+            <i className="fa fa-arrow-down fa-2x"></i>
+          </button>
+          <button
+            className="btn-level"
+            onClick={handleBreakIncrement}
+            id="break-increment"
+            value="+"
+          >
+            <i className="fa fa-arrow-up fa-2x"></i>
+          </button>
+        </div>
+        <div className='sessionLength'>
+          <div id="session-label">Session Length</div>
+          <div id="session-length" value={sessionLength}>
+            {sessionLength}
+          </div>
+          <button
+            className="btn-level"
+            id="session-decrement"
+            onClick={handleSessionDecrement}
+            value="-"
+          >
+            <i className="fa fa-arrow-down fa-2x"></i>
+          </button>
+          <button
+            className="btn-level"
+            onClick={handleSessionIncrement}
+            id="session-increment"
+            value="+"
+          >
+            <i className="fa fa-arrow-up fa-2x"></i>
+          </button></div>
+
       </div>
-      <button
-        class="btn-level"
-        id="session-decrement"
-        onClick={handleSessionDecrement}
-        value="-"
-      >
-        <i className="fa fa-arrow-down fa-2x"></i>
-      </button>
-      <button
-        className="btn-level"
-        onClick={handleSessionIncrement}
-        id="session-increment"
-        value="+"
-      >
-        <i className="fa fa-arrow-up fa-2x"></i>
-      </button>
-      <div id="time-wrapper">
-        <div id="timer-label">{isSession ? 'Session' : 'Break'}</div>
-        <div id="time-left" value={formatTime(timeLeft)}>
+      <div className="time-wrapper">
+        <div id="timer-label" style={{fontSize:"30px"}}>{isSession ? 'Session' : 'Break'}</div>
+        <div id="time-left" style={{fontSize:"30px"}} value={formatTime(timeLeft)}>
           {formatTime(timeLeft)}
         </div>
       </div>
-      <button id="start_stop" onClick={toggleTimer}>
-        {isActive ? (
-          <i className="fa fa-pause fa-2x"></i>
-        ) : (
-          <i className="fa fa-play fa-2x"></i>
-        )}
-      </button>
-      <button id="reset" onClick={resetTimer}>
-        Reset
-      </button>
+      <div className='control-wrapper'>
+        <button id="start_stop" onClick={toggleTimer}>
+          {isActive ? (
+            <i className="fa fa-pause control-play"></i>
+          ) : (
+            <i className="fa fa-play control-play"></i>
+          )}
+        </button>
+        <button id="reset" className='control-reset' onClick={resetTimer}>
+          Reset
+        </button>
+      </div>
       <audio ref={beepRef} className="beep" id="beep" src="https://commondatastorage.googleapis.com/codeskulptor-demos/riceracer_assets/music/start.ogg"></audio>
     </>
   );
